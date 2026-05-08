@@ -55,6 +55,9 @@ interface Stadium {
   capacity: number;
   image: string | null;
   description: string | null;
+  inauguration_year: number | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const AdminStadiums: React.FC = () => {
@@ -75,6 +78,9 @@ const AdminStadiums: React.FC = () => {
     capacity: '',
     image: '',
     description: '',
+    inauguration_year: '',
+    latitude: '',
+    longitude: '',
   });
 
   useEffect(() => {
@@ -112,6 +118,9 @@ const AdminStadiums: React.FC = () => {
       capacity: stadium.capacity.toString(),
       image: stadium.image || '',
       description: stadium.description || '',
+      inauguration_year: stadium.inauguration_year?.toString() || '',
+      latitude: stadium.latitude?.toString() || '',
+      longitude: stadium.longitude?.toString() || '',
     });
     setIsDialogOpen(true);
   };
@@ -125,6 +134,9 @@ const AdminStadiums: React.FC = () => {
       capacity: '',
       image: '',
       description: '',
+      inauguration_year: '',
+      latitude: '',
+      longitude: '',
     });
     setIsDialogOpen(true);
   };
@@ -144,6 +156,9 @@ const AdminStadiums: React.FC = () => {
         capacity: parseInt(formData.capacity),
         image: formData.image || undefined,
         description: formData.description || undefined,
+        inauguration_year: formData.inauguration_year ? parseInt(formData.inauguration_year) : undefined,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
       };
 
       let result;
@@ -351,14 +366,49 @@ const AdminStadiums: React.FC = () => {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Capacidade *</Label>
-              <Input 
-                type="number" 
-                placeholder="Ex: 80000" 
-                value={formData.capacity}
-                onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Capacidade *</Label>
+                <Input
+                  type="number"
+                  placeholder="Ex: 80000"
+                  value={formData.capacity}
+                  onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Ano de inauguração</Label>
+                <Input
+                  type="number"
+                  min="1900"
+                  max="2030"
+                  placeholder="Ex: 2010"
+                  value={formData.inauguration_year}
+                  onChange={(e) => setFormData({ ...formData, inauguration_year: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Latitude</Label>
+                <Input
+                  type="number"
+                  step="0.000001"
+                  placeholder="Ex: 40.812778"
+                  value={formData.latitude}
+                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Longitude</Label>
+                <Input
+                  type="number"
+                  step="0.000001"
+                  placeholder="Ex: -74.074167"
+                  value={formData.longitude}
+                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>URL da Imagem</Label>

@@ -1,14 +1,67 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, Ticket } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Trophy, Ticket, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getTeamsByGroup } from '@/data/teams';
-import { getMatchesByGroup, formatMatchDate } from '@/data/matches';
 import { TeamFlag } from '@/components/TeamFlag';
+import api from '@/lib/api';
 
 const groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
 
+interface ApiTeam {
+  id: number;
+  name: string;
+  code: string;
+  flag: string;
+  group_name: string | null;
+}
+
+interface ApiMatch {
+  id: number;
+  date: string;
+  group_name: string | null;
+  home_team_id: number;
+  away_team_id: number;
+  home_team_name: string;
+  home_team_flag: string;
+  away_team_name: string;
+  away_team_flag: string;
+}
+
+function formatDateBR(dateIso: string): string {
+  if (!dateIso) return '-';
+  const d = new Date(dateIso);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
 const Groups: React.FC = () => {
+  const { data: teamsData, isLoading: loadingTeams } = useQuery({
+    queryKey: ['teams'],
+    queryFn: () => api.getTeams(),
+  });
+
+  const { data: matchesData } = useQuery({
+    queryKey: ['matches'],
+    queryFn: () => api.getMatches(),
+  });
+
+  const allTeams: ApiTeam[] = teamsData?.data?.teams || [];
+  const allMatches: ApiMatch[] = matchesData?.data?.matches || [];
+
+  const getTeamsByGroup = (g: string) =>
+    allTeams.filter((t) => t.group_name === g);
+
+  const getMatchesByGroup = (g: string) =>
+    allMatches.filter((m) => m.group_name === g);
+
+  if (loadingTeams) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
@@ -61,9 +114,6 @@ const Groups: React.FC = () => {
                       <TeamFlag flag={team.flag} name={team.name} size="md" />
                       <div className="flex-1">
                         <span className="font-medium text-sm">{team.name}</span>
-                        {team.isTBD && (
-                          <span className="text-xs text-primary ml-2">(Repescagem)</span>
-                        )}
                       </div>
                       <span className="text-xs text-muted-foreground">{team.code}</span>
                     </div>
@@ -75,27 +125,20 @@ const Groups: React.FC = () => {
                   <div className="border-t border-border p-4">
                     <div className="text-xs text-muted-foreground mb-2">Próximos jogos:</div>
                     <div className="space-y-2">
-                      {matches.slice(0, 2).map((match) => {
-                        const homeTeam = teams.find(t => t.id === match.homeTeamId);
-                        const awayTeam = teams.find(t => t.id === match.awayTeamId);
-                        
-                        if (!homeTeam || !awayTeam) return null;
-
-                        return (
-                          <Link
-                            key={match.id}
-                            to={`/matches/${match.id}`}
-                            className="flex items-center justify-between text-sm hover:text-primary transition-colors"
-                          >
-                            <div className="flex items-center gap-1">
-                              <TeamFlag flag={homeTeam.flag} name={homeTeam.name} size="sm" />
-                              <span className="text-muted-foreground mx-1">vs</span>
-                              <TeamFlag flag={awayTeam.flag} name={awayTeam.name} size="sm" />
-                            </div>
-                            <span className="text-xs text-muted-foreground">{formatMatchDate(match.date)}</span>
-                          </Link>
-                        );
-                      })}
+                      {matches.slice(0, 2).map((match) => (
+                        <Link
+                          key={match.id}
+                          to={`/matches/${match.id}`}
+                          className="flex items-center justify-between text-sm hover:text-primary transition-colors"
+                        >
+                          <div className="flex items-center gap-1">
+                            <TeamFlag flag={match.home_team_flag} name={match.home_team_name} size="sm" />
+                            <span className="text-muted-foreground mx-1">vs</span>
+                            <TeamFlag flag={match.away_team_flag} name={match.away_team_name} size="sm" />
+                          </div>
+                          <span className="text-xs text-muted-foreground">{formatDateBR(match.date)}</span>
+                        </Link>
+                      ))}
                     </div>
                   </div>
                 )}

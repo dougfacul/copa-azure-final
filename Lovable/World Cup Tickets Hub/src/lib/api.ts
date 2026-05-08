@@ -177,6 +177,10 @@ class ApiClient {
     return this.request<{ stadium: any }>(`/stadiums/${id}`);
   }
 
+  async getStadiumMatches(id: string) {
+    return this.request<{ matches: any[] }>(`/stadiums/${id}/matches`);
+  }
+
   // Teams
   async getTeams(params?: { confederation?: string; group_name?: string }) {
     const query = params ? '?' + new URLSearchParams(params as any).toString() : '';

@@ -71,7 +71,7 @@ router.get('/:id/matches', async (req, res) => {
 // POST /api/stadiums - Criar novo estádio (Admin)
 router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, city, country, capacity, image, description } = req.body;
+    const { name, city, country, capacity, image, description, inauguration_year, latitude, longitude } = req.body;
 
     if (!name || !city || !country || !capacity) {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
@@ -85,10 +85,13 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
       .input('capacity', sql.Int, capacity)
       .input('image', sql.VarChar, image || null)
       .input('description', sql.Text, description || null)
+      .input('inauguration_year', sql.Int, inauguration_year || null)
+      .input('latitude', sql.Decimal(9, 6), latitude || null)
+      .input('longitude', sql.Decimal(9, 6), longitude || null)
       .query(`
-        INSERT INTO stadiums (name, city, country, capacity, image, description, created_at)
+        INSERT INTO stadiums (name, city, country, capacity, image, description, inauguration_year, latitude, longitude, created_at)
         OUTPUT INSERTED.*
-        VALUES (@name, @city, @country, @capacity, @image, @description, GETDATE())
+        VALUES (@name, @city, @country, @capacity, @image, @description, @inauguration_year, @latitude, @longitude, GETDATE())
       `);
 
     res.status(201).json({ stadium: result.recordset[0], message: 'Estádio criado com sucesso' });
@@ -101,7 +104,7 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
 // PUT /api/stadiums/:id - Atualizar estádio (Admin)
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { name, city, country, capacity, image, description } = req.body;
+    const { name, city, country, capacity, image, description, inauguration_year, latitude, longitude } = req.body;
 
     const pool = await getConnection();
     const result = await pool.request()
@@ -112,10 +115,14 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
       .input('capacity', sql.Int, capacity)
       .input('image', sql.VarChar, image || null)
       .input('description', sql.Text, description || null)
+      .input('inauguration_year', sql.Int, inauguration_year || null)
+      .input('latitude', sql.Decimal(9, 6), latitude || null)
+      .input('longitude', sql.Decimal(9, 6), longitude || null)
       .query(`
-        UPDATE stadiums 
-        SET name = @name, city = @city, country = @country, capacity = @capacity, 
-            image = @image, description = @description
+        UPDATE stadiums
+        SET name = @name, city = @city, country = @country, capacity = @capacity,
+            image = @image, description = @description,
+            inauguration_year = @inauguration_year, latitude = @latitude, longitude = @longitude
         OUTPUT INSERTED.*
         WHERE id = @id
       `);

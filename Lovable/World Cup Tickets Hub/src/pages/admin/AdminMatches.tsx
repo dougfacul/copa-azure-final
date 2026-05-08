@@ -382,7 +382,7 @@ const AdminMatches: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredMatches.slice(0, 20).map((match) => (
+            {filteredMatches.map((match) => (
               <TableRow key={match.id}>
                 <TableCell className="font-medium">{match.id}</TableCell>
                 <TableCell>
