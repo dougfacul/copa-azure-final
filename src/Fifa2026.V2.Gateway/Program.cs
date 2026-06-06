@@ -44,6 +44,8 @@ builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<FunctionDestinationConfigFilter>()
+    // Story 2.5 / F5 — injeta a URL real do McpServer no cluster mcp-server (AC-8).
+    .AddConfigFilter<McpServerDestinationConfigFilter>()
     .AddTransforms(transformBuilderContext =>
     {
         // AC-8 / ADE-000 Inv 5 — injeta X-Correlation-ID (novo GUID se ausente) em
