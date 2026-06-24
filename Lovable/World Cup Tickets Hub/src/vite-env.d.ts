@@ -6,6 +6,13 @@
 interface ImportMetaEnv {
   /** Backend v1 (Node/Express) — fluxo de comparação didática (intocado). */
   readonly VITE_API_URL?: string;
+  /**
+   * Oitavas de Final — Base URL da Azure Function v2 (F1, authLevel Anonymous).
+   * Quando DEFINIDA, o Checkout passa a usar a compra ASSÍNCRONA (POST /api/v2/purchase
+   * → 202 {correlationId} → polling em /api/v2/purchase/{id}). Ausente → fluxo v1 síncrono.
+   * NUNCA hardcoded.
+   */
+  readonly VITE_FUNCTION_V2_URL?: string;
   /** Application (client) ID da App Registration SPA no tenant Entra workforce. */
   readonly VITE_ENTRA_CLIENT_ID?: string;
   /** GUID do tenant Entra workforce do aluno. */
